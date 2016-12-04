@@ -95,8 +95,9 @@ test.io.dir(test.mraa.DIR_OUT);
 cfg.io = new cfg.mraa.Gpio(cfg.ioPin, cfg.ioOwner, cfg.ioRaw) ;
 cfg.io.dir(cfg.mraa.DIR_OUT) ;                  // configure the gpio pin as an output
 
-
-
+var button = new mraa.Gpio(7);
+var buttonPressed = function () {console.log.("button!\n");}
+button.isr(mraa.EDGE_RISING, buttonPressed);
 
 //var intervalID = setInterval(periodicActivity, 1000) ;  // start the periodic write
 cfg.io.write(0);
@@ -113,7 +114,9 @@ var secondTest = function () {
     process.stdout.write("okay we're done now, switched it");
 }
 
-
+var buttonPressed = function () {
+    fakeBlueRequest
+}
 
 
 
