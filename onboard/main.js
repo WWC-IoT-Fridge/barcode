@@ -44,26 +44,42 @@ Color = function(r, g, b) {
     this.green = g;
     this.blue = b
 }
+
 var blueColor = new Color(0, 0x3E, 0x62);
 var redColor = new Color(0x62, 0, 0);
 
-writeWithPauses = function(list, pauseTime) {
-    var iter = iterateList(list);
-    var intID = setInterval(iter.next, pauseTime);
-    var iterateList = function (list) {
-        var i = 0;
-        return {
-            next: function() {
-                if (i >= list.length) {
-                    clearInterval(intID);
-                    return;
-                } else {
-                    clearAndWrite(list[i++]);
-                    return;
-                }
+iterateList = function (list) {
+    var i = 0;
+    return {
+        next: function () { 
+            if (i >= list.length) {
+                return {done: true}
+            } else { 
+                display.write(list[i++]);
+                return {value: true}
             }
+        }} 
+}
+
+writeWithPauses = function(list, pauseTime) {
+    return new Promise( function (resolve, reject) {
+        var iter = iterateList(list);
+        var intID = setInterval(iter.next, pauseTime);
+        iterateList = function (list) {
+            var i = 0;
+            return {
+                next: function() {
+                    if (i >= list.length) {
+                        clearInterval(intID);
+                        resolve();
+                    } else {
+                        clearAndWrite(list[i++]);
+                        return;
+                    }
+                }
+            };
         };
-    };
+    });
 };
 clearAndWrite = function(str) {
     display.clear();
@@ -74,9 +90,8 @@ clearAndWrite = function(str) {
 };
 var showList = function (color, list) {
     display.setColor(color.red, color.green, color.blue);
-    writeWithPauses(list, 4000);
+    return writeWithPauses(list, 4000);
 }; 
-
 
 
 
@@ -86,29 +101,16 @@ var showList = function (color, list) {
 // configuration is based on parameters provided by the call to cfg.init()
 var lcd = require('jsupm_i2clcd');
 var display = new lcd.Jhd1313m1(0, 0x3E, 0x62);
-showList(blueColor, blueList);
-showList(redColor, redList);
+sv howList(blueColor, blueList).then(function() {showList(redColor, redList)});
 test.io = new test.mraa.Gpio(6, true, false);
 test.io = new test.mraa.Gpio(6, true, false);
 test.io.dir(test.mraa.DIR_OUT);
 cfg.io = new cfg.mraa.Gpio(cfg.ioPin, cfg.ioOwner, cfg.ioRaw) ;
 cfg.io.dir(cfg.mraa.DIR_OUT) ;                  // configure the gpio pin as an output
 
-console.log("Using digital output pin number: " + cfg.ioPin) ;
 
 
-// now we are going to write the digital output at a periodic interval
 
-var digOut ;
-var digOut2;
-var periodicActivity = function() {
-    digOut = cfg.io.read() ;                    // get the current state of the output pin
-    cfg.io.write(digOut?0:1) ;                  // if the pin is currently 1 write a '0' (low) else write a '1' (high)
-    process.stdout.write(digOut?'0':'1') ;      // and write an unending stream of toggling 1/0's to the console
-    digOut2 = test.io.read() ;                    // get the current state of the output pin
-    test.io.write(digOut?1:0) ;                  // if the pin is currently 1 write a '0' (low) else write a '1' (high)
-    process.stdout.write(digOut?'1\0':'0\0') ; 
-} ;
 //var intervalID = setInterval(periodicActivity, 1000) ;  // start the periodic write
 cfg.io.write(0);
 test.io.write(0);
@@ -123,9 +125,11 @@ var secondTest = function () {
     test.io.write(0);
     process.stdout.write("okay we're done now, switched it");
 }
-//var intervalID = setInterval(periodicActivity, 1000) ;  // start the periodic write
-setTimeout(testActivity, 5000);
-setTimeout(secondTest, 8000);
+
+
+
+
+
 
 // type process.exit(0) in debug console to see
 // the following message be emitted to the debug console
