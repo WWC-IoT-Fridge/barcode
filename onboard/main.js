@@ -101,7 +101,7 @@ var showList = function (color, list) {
 // configuration is based on parameters provided by the call to cfg.init()
 var lcd = require('jsupm_i2clcd');
 var display = new lcd.Jhd1313m1(0, 0x3E, 0x62);
-sv howList(blueColor, blueList).then(function() {showList(redColor, redList)});
+showList(blueColor, blueList).then(function() {showList(redColor, redList)});
 test.io = new test.mraa.Gpio(6, true, false);
 test.io = new test.mraa.Gpio(6, true, false);
 test.io.dir(test.mraa.DIR_OUT);
