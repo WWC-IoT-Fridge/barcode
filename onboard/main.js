@@ -21,7 +21,6 @@ var test= require("./cfg-app-platform.js")();
 console.log("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n") ;   // poor man's clear console
 console.log("Initializing " + APP_NAME) ;
 
-
 // confirm that we have a version of libmraa and Node.js that works
 // exit this app if we do not
 
@@ -39,7 +38,12 @@ if( !cfg.init() ) {
 
 // configure (initialize) our I/O pins for usage (gives us an I/O object)
 // configuration is based on parameters provided by the call to cfg.init()
-
+var lcd = require('jsupm_i2clcd');
+var display = new lcd.Jhd1313m1(0, 0x3E, 0x62);
+display.setCursor(1, 1);
+display.write('hi there');
+display.setCursor(0,0);
+display.write('more text');
 test.io = new test.mraa.Gpio(6, true, false);
 test.io.dir(test.mraa.DIR_OUT);
 cfg.io = new cfg.mraa.Gpio(cfg.ioPin, cfg.ioOwner, cfg.ioRaw) ;
