@@ -39,7 +39,7 @@ if( !cfg.init() ) {
 var blueList = ["Sweet potatoes", "Mac and cheese leftovers", "Orange juice"];
 var redList = ["Thai curry", "Ketchup", "Carrots"];
 
-Color = function(r, g, b) {
+var Color = function(r, g, b) {
     this.red = r;
     this.green = g;
     this.blue = b
@@ -48,24 +48,11 @@ Color = function(r, g, b) {
 var blueColor = new Color(0, 0x3E, 0x62);
 var redColor = new Color(0x62, 0, 0);
 
-iterateList = function (list) {
-    var i = 0;
-    return {
-        next: function () { 
-            if (i >= list.length) {
-                return {done: true}
-            } else { 
-                display.write(list[i++]);
-                return {value: true}
-            }
-        }} 
-}
-
-writeWithPauses = function(list, pauseTime) {
+var writeWithPauses = function(list, pauseTime) {
     return new Promise( function (resolve, reject) {
         var iter = iterateList(list);
         var intID = setInterval(iter.next, pauseTime);
-        iterateList = function (list) {
+        var iterateList = function (list) {
             var i = 0;
             return {
                 next: function() {
@@ -81,7 +68,7 @@ writeWithPauses = function(list, pauseTime) {
         };
     });
 };
-clearAndWrite = function(str) {
+var clearAndWrite = function(str) {
     display.clear();
     display.home();
     display.write(str);
