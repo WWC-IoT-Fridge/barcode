@@ -15,7 +15,7 @@
 "use strict" ;
 
 
-var APP_NAME = "IoT Digital Write" ;
+var APP_NAME = "Smart Fridge Board App" ;
 var cfg = require("./cfg-app-platform.js")() ;          // init and config I/O resources
 var test= require("./cfg-app-platform.js")();
 console.log("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n") ;   // poor man's clear console
@@ -60,8 +60,21 @@ var periodicActivity = function() {
     test.io.write(digOut?1:0) ;                  // if the pin is currently 1 write a '0' (low) else write a '1' (high)
     process.stdout.write(digOut2?'1\0':'0\0') ; 
 } ;
-var intervalID = setInterval(periodicActivity, 1000) ;  // start the periodic write
 
+var testActivity = function () {
+    cfg.io.write(0);
+    test.io.write(1);
+    process.stdout.write('wrote 0 to cfg, 1 to test');
+}
+
+var secondTest = function () {
+    test.io.write(1);
+    cfg.io.write(0);
+    process.stdout.write("okay we're done now, switched it");
+}
+//var intervalID = setInterval(periodicActivity, 1000) ;  // start the periodic write
+setTimeout(testActivity, 5000);
+setTimeout(secondTest, 8000);
 
 // type process.exit(0) in debug console to see
 // the following message be emitted to the debug console
