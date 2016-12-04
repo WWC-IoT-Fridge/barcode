@@ -38,24 +38,58 @@ if( !cfg.init() ) {
 
 var blueList = ["Sweet potatoes", "Mac and cheese leftovers", "Orange juice"];
 var redList = ["Thai curry", "Ketchup", "Carrots"];
-var blueColor = {
-    red: 0,
-    green: 0x3E,
-    blue: 0x62
+
+Color = function(r, g, b) {
+    this.red = r;
+    this.green = g;
+    this.blue = b
 }
-var redColor = {
-    red: 0x62,
-    green: 0
-    blue: 0
+
+var blueColor = new Color(0, 0x3E, 0x62);
+var redColor = new Color(0x62, 0, 0);
+
+iterateList = function (list) {
+    var i = 0;
+    return {
+        next: function () { 
+            if (i >= list.length) {
+                return {done: true}
+            } else { 
+                display.write(list[i++]);
+                return {value: true}
+            }
+        }} 
 }
+
+writeWithPauses = function(list, pauseTime) {
+    var iter = iterateList(list);
+    var intID = setInterval(iter.next, pauseTime);
+    iterateList = function (list) {
+        var i = 0;
+        return {
+            next: function() {
+                if (i >= list.length) {
+                    clearInterval(intID);
+                    return;
+                } else {
+                    clearAndWrite(list[i++]);
+                    return;
+                }
+            }
+        };
+    };
+};
+clearAndWrite = function(str) {
+    display.clear();
+    display.home();
+    display.write(str);
+    //THIS MIGHT WORK
+    display.scroll(true);
+};
 var showList = function (color, list) {
     display.setColor(color.red, color.green, color.blue);
-    for (var i = 0; i < list.length, i++) {
-        var string = list[i];
-        setTimeout(function() {display.write(string)}, 6000);
-    }
-} 
-
+    writeWithPauses(list, 4000);
+}; 
 
 
 
@@ -67,6 +101,7 @@ var lcd = require('jsupm_i2clcd');
 var display = new lcd.Jhd1313m1(0, 0x3E, 0x62);
 showList(blueColor, blueList);
 showList(redColor, redList);
+test.io = new test.mraa.Gpio(6, true, false);
 test.io = new test.mraa.Gpio(6, true, false);
 test.io.dir(test.mraa.DIR_OUT);
 cfg.io = new cfg.mraa.Gpio(cfg.ioPin, cfg.ioOwner, cfg.ioRaw) ;
