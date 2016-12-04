@@ -45,12 +45,12 @@ var blueColor = {
 }
 var redColor = {
     red: 0x62,
-    green: 0
+    green: 0,
     blue: 0
 }
 var showList = function (color, list) {
     display.setColor(color.red, color.green, color.blue);
-    for (var i = 0; i < list.length, i++) {
+    for (var i = 0; i < list.length; i++) {
         var string = list[i];
         setTimeout(function() {display.write(string)}, 6000);
     }
