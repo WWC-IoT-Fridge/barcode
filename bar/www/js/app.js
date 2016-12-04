@@ -15,6 +15,7 @@
 
 // This file contains your event handlers, the center of your application.
 // NOTE: see app.initEvents() in init-app.js for event handler initialization code.
+var scanBarcode = require('./barcode');
 
 function myEventHandler() {
     "use strict";
@@ -50,14 +51,7 @@ function scan() {
             console.log(fName, "emulator alert");
         } else {
             cordova.plugins.barcodeScanner.scan(
-                function (result) {
-                    console.log(fName, "Scanned result found!");
-                    alert("We got a barcode!\n" +
-                        "Result: " + result.text + "\n" +
-                        "Format: " + result.format + "\n" +
-                        "Cancelled: " + result.cancelled + "\n\n" +
-                        "You may use the " + result.format + " - '" + result.text + "' to look up your product in any UPC database like http://www.upcdatabase.com/");
-                },
+                scanBarcode,
                 function (error) {
                     alert("Scanning failed: " + error);
                 }

@@ -12,3 +12,10 @@
 !/.gitignore
 !/.jscodehints
 !/*.png
+intelxdk.config.android.xml
+	intelxdk.config.chrome.xml
+	intelxdk.config.ios.xml
+	intelxdk.config.windows.xml
+	intelxdk.config.windows8.xml
+	intelxdk.config.wp81.xml
+
