@@ -1,106 +1,87 @@
-// Drive the Grive RGB LCD (a JHD1313m1)
-// We can do this in either of two ways
-//
-// The bext way is to use the upm library. which
-// contains support for this device
-//
-// The alternative way is to drive the LCD directly from
-// Javascript code using the i2c interface directly
-// This approach is useful for learning about using
-// the i2c bus. The lcd file is an implementation
-// in Javascript for some of the common LCD functions
-
-// configure jshint
-/*jslint node:true, vars:true, bitwise:true, unparam:true */
-/*jshint unused:true */
-
-// change this to false to use the hand rolled version
-var useUpmVersion = true;
-
-// we want mraa to be at least version 0.6.1
-var mraa = require('mraa');
-var version = mraa.getVersion();
-
-if (version >= 'v0.6.1') {
-    console.log('mraa version (' + version + ') ok');
-}
-else {
-    console.log('meaa version(' + version + ') is old - this code may not work');
-}
-
-if (useUpmVersion) {
-    useUpm();
-}
-else {
-    useLcd();
-}
-
-/**
- * Rotate through a color pallette and display the
- * color of the background as text
- */
-function rotateColors(display) {
-    var red = 0;
-    var green = 0;
-    var blue = 0;
-    display.setColor(red, green, blue);
-    setInterval(function() {
-        blue += 64;
-        if (blue > 255) {
-            blue = 0;
-            green += 64;
-            if (green > 255) {
-                green = 0;
-                red += 64;
-                if (red > 255) {
-                    red = 0;
-                }
-            }
-        }
-        display.setColor(red, green, blue);
-        display.setCursor(0,0);
-        display.write('red=' + red + ' grn=' + green + '  ');
-        display.setCursor(1,0);
-        display.write('blue=' + blue + '   ');  // extra padding clears out previous text
-    }, 1000);
-}
-
-/**
- * Use the upm library to drive the two line display
+/*
+ * A simple Node.js application to write to a digital output.
+ * Supported Intel IoT development boards are identified in the code.
  *
- * Note that this does not use the "lcd.js" code at all
+ * See LICENSE.md for license terms and conditions.
+ *
+ * https://software.intel.com/en-us/html5/articles/intel-xdk-iot-edition-nodejs-templates
  */
-function useUpm() {
-    var lcd = require('jsupm_i2clcd');
-    var display = new lcd.Jhd1313m1(0, 0x3E, 0x62);
-    display.setCursor(1, 1);
-    display.write('hi there');
-    display.setCursor(0,0);
-    display.write('more text');
-    rotateColors(display);
+
+// keep /*jslint and /*jshint lines for proper jshinting and jslinting
+// see http://www.jslint.com/help.html and http://jshint.com/docs
+/* jslint node:true */
+/* jshint unused:true */
+
+"use strict" ;
+
+
+var APP_NAME = "IoT Digital Write" ;
+var cfg = require("./cfg-app-platform.js")() ;          // init and config I/O resources
+var test= require("./cfg-app-platform.js")();
+console.log("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n") ;   // poor man's clear console
+console.log("Initializing " + APP_NAME) ;
+
+
+// confirm that we have a version of libmraa and Node.js that works
+// exit this app if we do not
+
+cfg.identify() ;                // prints some interesting platform details to console
+
+if( !cfg.test() ) {
+    process.exitCode = 1 ;
+    throw new Error("Call to cfg.test() failed, check console messages for details.") ;
 }
 
-/**
- * Use the hand rolled lcd.js code to do the
- * same thing as the previous code without the
- * upm library
- */
-function useLcd() {
-    var lcd = require('./lcd');
-    var display = new lcd.LCD(0);
-
-    display.setColor(0, 60, 255);
-    display.setCursor(1, 1);
-    display.write('hi there');
-    display.setCursor(0,0);  
-    display.write('more text');
-    display.waitForQuiescent()
-    .then(function() {
-        rotateColors(display);
-    })
-    .fail(function(err) {
-        console.log(err);
-        display.clearError();
-        rotateColors(display);
-    });
+if( !cfg.init() ) {
+    process.exitCode = 1 ;
+    throw new Error("Call to cfg.init() failed, check console messages for details.") ;
 }
+
+// configure (initialize) our I/O pins for usage (gives us an I/O object)
+// configuration is based on parameters provided by the call to cfg.init()
+
+test.io = new test.mraa.Gpio(6, true, false);
+test.io.dir(test.mraa.DIR_OUT);
+cfg.io = new cfg.mraa.Gpio(cfg.ioPin, cfg.ioOwner, cfg.ioRaw) ;
+cfg.io.dir(cfg.mraa.DIR_OUT) ;                  // configure the gpio pin as an output
+
+console.log("Using digital output pin number: " + cfg.ioPin) ;
+
+
+// now we are going to write the digital output at a periodic interval
+
+var digOut ;
+var digOut2;
+var periodicActivity = function() {
+    digOut = cfg.io.read() ;                    // get the current state of the output pin
+    cfg.io.write(digOut?0:1) ;                  // if the pin is currently 1 write a '0' (low) else write a '1' (high)
+    process.stdout.write(digOut?'0':'1') ;      // and write an unending stream of toggling 1/0's to the console
+    digOut2 = test.io.read() ;                    // get the current state of the output pin
+    test.io.write(digOut?1:0) ;                  // if the pin is currently 1 write a '0' (low) else write a '1' (high)
+    process.stdout.write(digOut?'1\0':'0\0') ; 
+} ;
+//var intervalID = setInterval(periodicActivity, 1000) ;  // start the periodic write
+cfg.io.write(0);
+test.io.write(0);
+var testActivity = function () {
+    cfg.io.write(0);
+    test.io.write(1);
+    process.stdout.write('wrote 0 to cfg, 1 to test');
+}
+
+var secondTest = function () {
+    cfg.io.write(1);
+    test.io.write(0);
+    process.stdout.write("okay we're done now, switched it");
+}
+//var intervalID = setInterval(periodicActivity, 1000) ;  // start the periodic write
+setTimeout(testActivity, 5000);
+setTimeout(secondTest, 8000);
+
+// type process.exit(0) in debug console to see
+// the following message be emitted to the debug console
+
+process.on("exit", function(code) {
+    //clearInterval(intervalID) ;
+    console.log("\nExiting " + APP_NAME + ", with code:", code) ;
+}) ;
