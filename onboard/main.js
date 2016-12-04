@@ -44,27 +44,13 @@ Color = function(r, g, b) {
     this.green = g;
     this.blue = b
 }
-
 var blueColor = new Color(0, 0x3E, 0x62);
 var redColor = new Color(0x62, 0, 0);
-
-iterateList = function (list) {
-    var i = 0;
-    return {
-        next: function () { 
-            if (i >= list.length) {
-                return {done: true}
-            } else { 
-                display.write(list[i++]);
-                return {value: true}
-            }
-        }} 
-}
 
 writeWithPauses = function(list, pauseTime) {
     var iter = iterateList(list);
     var intID = setInterval(iter.next, pauseTime);
-    iterateList = function (list) {
+    var iterateList = function (list) {
         var i = 0;
         return {
             next: function() {
@@ -90,6 +76,7 @@ var showList = function (color, list) {
     display.setColor(color.red, color.green, color.blue);
     writeWithPauses(list, 4000);
 }; 
+
 
 
 
