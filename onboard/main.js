@@ -36,14 +36,37 @@ if( !cfg.init() ) {
     throw new Error("Call to cfg.init() failed, check console messages for details.") ;
 }
 
+var blueList = ["Sweet potatoes", "Mac and cheese leftovers", "Orange juice"];
+var redList = ["Thai curry", "Ketchup", "Carrots"];
+var blueColor = {
+    red: 0,
+    green: 0x3E,
+    blue: 0x62
+}
+var redColor = {
+    red: 0x62,
+    green: 0
+    blue: 0
+}
+var showList = function (color, list) {
+    display.setColor(color.red, color.green, color.blue);
+    for (var i = 0; i < list.length, i++) {
+        var string = list[i];
+        setTimeout(function() {display.write(string)}, 6000);
+    }
+} 
+
+
+
+
+
+
 // configure (initialize) our I/O pins for usage (gives us an I/O object)
 // configuration is based on parameters provided by the call to cfg.init()
 var lcd = require('jsupm_i2clcd');
 var display = new lcd.Jhd1313m1(0, 0x3E, 0x62);
-display.setCursor(1, 1);
-display.write('hi there');
-display.setCursor(0,0);
-display.write('more text');
+showList(blueColor, blueList);
+showList(redColor, redList);
 test.io = new test.mraa.Gpio(6, true, false);
 test.io.dir(test.mraa.DIR_OUT);
 cfg.io = new cfg.mraa.Gpio(cfg.ioPin, cfg.ioOwner, cfg.ioRaw) ;
